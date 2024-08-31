@@ -121,6 +121,7 @@ export class FormComponentComponent {
 
   transformDate(date: Date): string {
     // Use DatePipe to format the date
+    date.setHours(0, 0, 0, 0);
     return this.datePipe.transform(date, 'yyyy-MM-ddTHH:mm:ss') ?? '';
   }
   onCountryChange(country: any) {
