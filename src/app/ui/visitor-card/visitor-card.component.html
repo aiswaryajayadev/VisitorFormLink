@@ -1,4 +1,4 @@
-<div class="card-container">
+<!-- <div class="card-container">
 <div class="visitor-card" #visitorCard>
     <div class="photo-area">
       <div class="photo-placeholder">Photo</div>
@@ -13,6 +13,24 @@
       <div class="address">4th floor, Thejaswini, Technopark, Trivandrum - 695581</div>
     </div>
 
+  </div>
+  <button class="download-btn" (click)="downloadAsPdf()">Download</button>
+</div> -->
+<div class="card-container" *ngIf="visitorData">
+  <div class="visitor-card" #visitorCard>
+    <div class="photo-area">
+      <img  [src]="visitorData.imageUrl" alt="Visitor Photo">
+    </div>
+    <div class="info-area">
+      <div class="name">Name: {{visitorData.name || 'N/A'}}</div>     
+       <div class="dateofvisit">Date Of Visit: {{visitorData.dateOfVisit}}</div>
+       <div class="visit">Purpose of Visit: {{ visitorData.purposeOfVisit }}</div>
+      <div>
+      </div>
+      <div class="company-logo">
+        <img src="experion-logo.png" alt="Experion Technologies">
+      </div>
+    </div>
   </div>
   <button class="download-btn" (click)="downloadAsPdf()">Download</button>
 </div>

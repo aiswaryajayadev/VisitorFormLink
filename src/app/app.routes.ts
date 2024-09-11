@@ -3,11 +3,11 @@ import { VisitorFormComponent } from './pages/visitor-form/visitor-form.componen
 import { ThankyouPageComponent } from './pages/thankyou-page/thankyou-page.component';
 import { VisitorConsentModalComponent } from './pages/visitor-consent-modal/visitor-consent-modal.component';
 import { WelcomepageComponent } from './pages/welcomepage/welcomepage.component';
+import { VisitorCardComponent } from './ui/visitor-card/visitor-card.component';
 
 
 export const routes: Routes = [
    
-
     {
        path:'',component:WelcomepageComponent
     },
@@ -17,6 +17,8 @@ export const routes: Routes = [
     {
         path:'visitorForm',component:VisitorFormComponent
     },
+    
+{path:'visitor-card',component:VisitorCardComponent},
     {
         path:'thankyou',component:ThankyouPageComponent
     }

@@ -26,6 +26,7 @@ import { VisitorConsentModalComponent } from '../../visitor-consent-modal/visito
 import { alphabetValidator, numberValidator } from '../custom-validators';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { GetIdAndName } from '../../../Models/getIdAndName.interface';
+import { VisitorDataService } from '../../../services/VisitorcardServices/VisitorDataServices.service';
 
 @Component({
   selector: 'app-form-component',
@@ -70,13 +71,15 @@ export class FormComponentComponent {
   permissionStatus : string="";
   camData:any = null;
   capturedImage : any ='';
+  visitPurpose : string =''
+  
   trigger : Subject<void> = new Subject();
   showSerialInput: boolean=false;
   Locations: GetIdAndName[] = [];
 
   constructor(private apiService: DataserviceService,private imageCompress: NgxImageCompressService,
     public dialog: MatDialog,private messageService: MessageService, private datePipe: DatePipe,
-    private fb: FormBuilder,private router: Router,private cdr: ChangeDetectorRef) 
+    private fb: FormBuilder,private router: Router,private cdr: ChangeDetectorRef, private visitorDataService: VisitorDataService) 
   {
     // const date = new Date();
     // const transformedDate = this.datePipe.transform(date,'yyyy-MM-ddTHH:mm:ss');
@@ -465,6 +468,12 @@ isFormValid(): boolean {
 }
 onSubmit(): void {
   const formData = this.addvisitorForm.value;
+  this.visitPurpose = formData.purposeofvisit;
+  if (this.visitPurpose==="Other"){
+    console.log("iam  here");
+    
+    this.visitPurpose=formData.otherPurpose;
+  }
   const imageData = this.capturedImage;
   const policy = formData.policy;
   const formSubmissionMode = "Link";
@@ -557,7 +566,17 @@ onSubmit(): void {
   this.apiService.createVisitorAndAddItem(visitorPayload).subscribe(
     (response) => {
       console.log('Visitor and item added successfully:', response);
-      this.router.navigate(['/thankyou']);
+      const visitorData = {        
+      name: formData.name,
+      purposeOfVisit: this.visitPurpose,
+      dateOfVisit: this.transformDate(formData.date),
+      imageUrl: this.capturedImage // purpose should contain at least { name: string }
+      };
+
+    console.log(visitorData);
+    this.visitorDataService.setVisitorData(visitorData);
+
+      this.router.navigate(['/visitor-card']);
     },
     (error) => {
       this.messages = [{ severity: 'error', detail: 'Please fill all the details!' }];
