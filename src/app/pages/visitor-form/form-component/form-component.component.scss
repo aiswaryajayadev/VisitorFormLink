@@ -179,22 +179,24 @@ a{
 }
 
 .phone{
- width: 337px;
+ width: 260px;
  margin-right: 10px;
  margin-left: 5px;
 }
 .phonenumber{
+ 
   display: flex;
 }
 ::ng-deep .lib-country-list span{
   visibility: hidden;
 }
+
 .col {
     display: flex;
     flex-direction: column;
   }
 .smallInput {
-    width: 336px;
+    width: 409px;
     margin-right: 10px;
 }
 .mediumInput {
@@ -204,9 +206,12 @@ a{
     margin-left:10px ;
 
 }
+::ng-deep .ipv_search_box{
+  height: 56px !important;
+}
 ::ng-deep  .ipv_selected-item{
   height: 56px !important;
-    
+  width: 135px !important;
     border-radius: 5px !important;
 }
 @media screen and (max-width: 768px) {

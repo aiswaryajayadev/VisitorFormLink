@@ -23,7 +23,7 @@ import {MatInputModule} from '@angular/material/input';
 import {  map, Observable, of, startWith, Subject } from 'rxjs';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { VisitorConsentModalComponent } from '../../visitor-consent-modal/visitor-consent-modal.component';
-import { alphabetValidator, numberValidator } from '../custom-validators';
+import { alphabetValidator, futureDateValidator, numberValidator } from '../custom-validators';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { GetIdAndName } from '../../../Models/getIdAndName.interface';
 
@@ -86,7 +86,7 @@ export class FormComponentComponent {
       name: ['', [Validators.required,alphabetValidator()]],
       fullNumber:['', Validators.required],
       countryCode:['', Validators.required],
-      date: [null, [Validators.required]],
+      date: [null, [Validators.required,futureDateValidator()]],
       phoneNumber: ['', [Validators.required,numberValidator()]],
       personInContact: ['',[ Validators.required,alphabetValidator()]],
       purposeofvisit: ['', Validators.required],
@@ -158,7 +158,11 @@ export class FormComponentComponent {
     this.loadDevicesCarried();  
     
   }
-
+  dateFilter = (d: Date | null): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set time to the start of the day
+    return d ? d.getTime() >= today.getTime() : false;
+  };
   onFocus(index:number){
     this.updateFilteredDevice(index);
 
