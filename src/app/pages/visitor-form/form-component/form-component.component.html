@@ -33,7 +33,7 @@
             <mat-label class="placeHolder">Enter the Phone Number</mat-label>
             <input matInput  id="phoneNumber" name="phoneNumber" formControlName="phoneNumber" (change)="fullPhoneNumber()">
             <mat-error *ngIf="addvisitorForm.get('phoneNumber')?.hasError('numberOnly')&& addvisitorForm.get('phoneNumber')?.touched" class="astrik">
-              Phone number must be a numeric value having 6 to 14 digits length.
+            Phone number must be a numeric value having 6 to 14 digits length.
             </mat-error>
             <mat-error *ngIf="addvisitorForm.get('phoneNumber')?.hasError('required')">
               *Required Field
