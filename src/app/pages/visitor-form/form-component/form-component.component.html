@@ -33,7 +33,7 @@
             <mat-label class="placeHolder">Enter the Phone Number</mat-label>
             <input matInput  id="phoneNumber" name="phoneNumber" formControlName="phoneNumber" (change)="fullPhoneNumber()">
             <mat-error *ngIf="addvisitorForm.get('phoneNumber')?.hasError('numberOnly')&& addvisitorForm.get('phoneNumber')?.touched" class="astrik">
-              Phone number must be a numeric value between 6 and 14 digits long.
+              Phone number must be a numeric value having 6 to 14 digits length.
             </mat-error>
             <mat-error *ngIf="addvisitorForm.get('phoneNumber')?.hasError('required')">
               *Required Field
@@ -104,7 +104,7 @@
                   <input type="text"
                          matInput
                          formControlName="otherPurpose"
-                         (focusout)="onPurposeFocusOut()">
+                         >
                          <mat-error *ngIf="addvisitorForm.get('otherPurpose')?.hasError('required')">
                           *Required Field
                         </mat-error>  
@@ -192,7 +192,7 @@
           <div class="">
             <mat-form-field appearance="outline" class="otherDevicelargeInput">
               <mat-label class="placeHolder">Enter Other Device</mat-label>
-              <input matInput formControlName="otherDevice"  (focusout)="onOtherDeviceFocusOut(i)" >
+              <input matInput formControlName="otherDevice"   >
               <mat-error *ngIf="addvisitorForm.get('otherDevice')?.hasError('required')">
                 *Required Field
               </mat-error> 
