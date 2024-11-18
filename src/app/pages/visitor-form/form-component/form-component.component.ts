@@ -313,18 +313,18 @@ openDialog(): void {
       });
     }
   
-    onCarryDeviceChange(value:number): void {
+    onCarryDeviceChange(value: number): void {
       if (value === 1) {
-        this.showDeviceOption = !this.showDeviceOption;
-        // this.addItem(); // Add an initial item if necessary
+        this.showDeviceOption = true; // Explicitly show the device options
         if (this.items.length === 0) {
           this.items.push(this.createItemFormGroup());
         }
-      } else if(value === 0) {
-        this.showDeviceOption = !this.showDeviceOption;
+      } else if (value === 0) {
+        this.showDeviceOption = false; // Explicitly hide the device options
         this.items.clear(); // Clear items if "No"
       }
     }
+    
   
     addItem(index: number): void {
       if (this.isInputFilled) {

@@ -134,9 +134,9 @@
       <div class="radio-container carryDevice">
         <label class="inputRadioLabel">Are you carrying any device?</label>
         <mat-radio-group formControlName="carryDevice" (change)="onCarryDeviceChange($event.value)">
-          <mat-radio-button [value]=1>Yes</mat-radio-button>
-          <mat-radio-button [value]=0>No</mat-radio-button>
-        </mat-radio-group> 
+          <mat-radio-button [value]="1">Yes</mat-radio-button>
+          <mat-radio-button [value]="0">No</mat-radio-button>
+        </mat-radio-group>
         
         <mat-error *ngIf="addvisitorForm.get('carryDevice')?.hasError('required')">
           *Required Field
