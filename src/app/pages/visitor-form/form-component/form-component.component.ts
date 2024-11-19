@@ -328,6 +328,13 @@ openDialog(): void {
   
     addItem(index: number): void {
       if (this.isInputFilled) {
+
+        if (this.items.length >= 5) {
+          this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Cannot add more than 5 devices!' });
+ 
+          console.warn('Cannot add more than 5 items.');
+          return;
+        }
         this.isPlusClicked = true;        
         // Create a new item form group with empty initial values
         
@@ -486,8 +493,9 @@ onSubmit(): void {
   }
 
   const devicesToAdd = formData.items
-    .map((item: any) => (item.deviceCarried.deviceName === 'Other' ? item.otherDevice : null))
-    .filter((deviceName: string | null) => deviceName);
+  .filter((item: any) => item.deviceCarried.deviceName === 'Other' && item.otherDevice) // Filter only items with 'Other' device and a valid otherDevice value
+  .map((item: any) => item.otherDevice); // Map to otherDevice values
+
 
   const addDevices = (deviceNames: string[]) => {
     const addDeviceObservables = deviceNames.map((deviceName) => this.apiService.addDevice(deviceName));
@@ -495,11 +503,34 @@ onSubmit(): void {
   };
 
   const processDeviceCarriedAndAddVisitor = (devices: any[]) => {
+    console.log("Received Devices:", devices);
+    // console.log("Received Device IDs:");
+    // devices.forEach((device, index) => {
+    //   console.log(`${index}:${device.id}`);
+    // });
+
+    const otherDeviceIds = devices.map((device) => device.id); 
+    //console.log("Mapped Device IDs:", otherDeviceIds);
+
     const addVisitor = (purposeId: any, devices: any[]) => {
-      const selectedDevices = formData.items.map((item: any, index: number) => ({
-        deviceId: item.deviceCarried?.deviceId || devices[index]?.id || null,
+      let otherDevicePointer = 0;
+      const selectedDevices = formData.items.map((item: any, index: number) => {
+        // Use deviceCarried.deviceId if available, otherwise use the corresponding otherDeviceIds item
+        let deviceId = item.deviceCarried?.deviceId;
+
+      if (!deviceId && otherDevicePointer < otherDeviceIds.length) {
+    // Use the next available device ID from otherDeviceIds
+      deviceId = otherDeviceIds[otherDevicePointer];
+      otherDevicePointer++; // Move the pointer forward
+      }
+
+      
+      return {
+        deviceId, // It will be a number from the start
         serialNumber: item.DeviceSerialnumber || null,
-      }));
+      };
+      });
+  
 
       const visitorPayload = {
       name: formData.name,
@@ -508,7 +539,7 @@ onSubmit(): void {
       purposeOfVisitId: purposeId,
       officeLocationId: formData.LocationId,
       visitDate: formattedDate,
-      selectedDevices,
+      SelectedDevice : selectedDevices,
       formSubmissionMode,
       imageData,
       };
@@ -583,7 +614,9 @@ onSubmit(): void {
         const addedDevices = responses.map((response: any) => ({
           id: response.id,
           name: response.name,
+
         }));
+        console.log("device added",addedDevices);
         processDeviceCarriedAndAddVisitor(addedDevices);
       },
       (error) => {
