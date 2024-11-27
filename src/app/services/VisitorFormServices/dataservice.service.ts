@@ -49,7 +49,7 @@ addPurpose(purpose: string): Observable<PurposeResponse> {
   return this.http.post<PurposeResponse>(apiUrl, { purposeName: purpose });
 }
 addDevice(device: string ): Observable<DeviceResponse> {
-  return this.http.post<DeviceResponse>(`${this.url}Device/PostDevice`, {deviceName:device});
+  return this.http.post<DeviceResponse>(`${this.url}/Device/PostDevice`, {deviceName:device});
 }
    
    
