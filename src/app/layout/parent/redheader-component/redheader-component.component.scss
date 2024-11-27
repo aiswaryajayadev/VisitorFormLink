@@ -1,0 +1,63 @@
+.red-header {
+    width: 100%;
+    background: #684683;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: black;
+    height: 50px;
+}
+
+.date-time-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.product-name {
+    text-align: center;
+    
+  
+    
+    p {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 0;
+      
+      span {
+        color: #d11c40;
+      }
+    }
+  }
+.date, .time {
+    margin-top: 0px;
+    margin-right: 20px; /* Space between date and time */
+}
+
+img {
+    margin: 5px 5px 5px 10px;
+    padding: 1px;
+    height: 63px;
+}
+@media screen and (max-width: 600px) {
+    .red-header {
+       
+        
+        height: auto;
+        padding: 10px;
+    }
+
+  
+
+    .date, .time {
+        margin-right: 0;
+        font-size: 12px; /* Adjusted for mobile */
+    }
+    .product-name {
+        visibility: visible;
+    }
+    img {
+        margin: 0 0 10px 0;
+        height: 30px; /* Adjusted height for mobile */
+    }
+}
