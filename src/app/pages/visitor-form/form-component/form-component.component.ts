@@ -20,7 +20,7 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
-import {  map, Observable, of, startWith, Subject } from 'rxjs';
+import {  forkJoin, map, Observable, of, startWith, Subject } from 'rxjs';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { VisitorConsentModalComponent } from '../../visitor-consent-modal/visitor-consent-modal.component';
 import { alphabetValidator, futureDateValidator, numberValidator } from '../custom-validators';
@@ -78,9 +78,6 @@ export class FormComponentComponent {
     public dialog: MatDialog,private messageService: MessageService, private datePipe: DatePipe,
     private fb: FormBuilder,private router: Router,private cdr: ChangeDetectorRef) 
   {
-    // const date = new Date();
-    // const transformedDate = this.datePipe.transform(date,'yyyy-MM-ddTHH:mm:ss');
-    // console.log(transformedDate);
     
     this.addvisitorForm = this.fb.group({
       name: ['', [Validators.required,alphabetValidator()]],
@@ -104,11 +101,7 @@ export class FormComponentComponent {
     
   }
 
-  // onInput() {
-  //   const value = this.deviceControl.value;
-  //   console.log('onInput called:', this.deviceControl.value);
-    
-  // }
+  
   selectedCountryConfig: IConfig = {
     hideCode: true,
     hideName: true,
@@ -148,6 +141,7 @@ export class FormComponentComponent {
       throw new Error('Control is not an instance of FormControl');
     }
   }
+
   ngOnInit() {
     this.loadVisitPurpose();
     this.loadLocation();
@@ -229,35 +223,34 @@ openDialog(): void {
   }   
 
 
-  onPurposeFocusOut(): void {
-    const otherPurpose = this.addvisitorForm.get('otherPurpose')?.value;
-    if (this.isOtherPurposeSelected && otherPurpose) {
-      this.storeOtherPurpose(otherPurpose);
-    }
-  }
+  // onPurposeFocusOut(): void {
+  //   const otherPurpose = this.addvisitorForm.get('otherPurpose')?.value;
+  //   if (this.isOtherPurposeSelected && otherPurpose) {
+  //     this.storeOtherPurpose(otherPurpose);
+  //   }
+  // }
   
     
-  storeOtherPurpose(value: string): void {
-    this.apiService.addPurpose(value).subscribe(
-      (response: any) => {
-        console.log("Other purpose added successfully:", response);
-        this.addvisitorForm.patchValue({
-          purposeofvisitId: response.id,
-          selectedPurpose: value
-        });
-        // console.log("other pid ",this.purposeofvisitId);
+  // storeOtherPurpose(value: string): void {
+  //   this.apiService.addPurpose(value).subscribe(
+  //     (response: any) => {
+  //       console.log("Other purpose added successfully:", response);
+  //       this.addvisitorForm.patchValue({
+  //         purposeofvisitId: response.id,
+  //         selectedPurpose: value
+  //       });   
         
-      },
-      (error) => {
-        console.error('Error adding other purpose:', error);
-      }
-    );
-  }
+  //     },
+  //     (error) => {
+  //       console.error('Error adding other purpose:', error);
+  //     }
+  //   );
+  // }
 
 
   onInputFocus() {
-    // Trigger the filtering logic, or ensure that the options are populated.
-    this.myControl.setValue(this.myControl.value || ''); // This will trigger the valueChanges observable and filter the options.
+    
+    this.myControl.setValue(this.myControl.value || ''); 
   }
   displayPurpose(purpose?: any): string  {
     return purpose ? purpose.purposeName : undefined;
@@ -269,19 +262,19 @@ openDialog(): void {
       this.isOtherPurposeSelected = true;
       this.addvisitorForm.patchValue({
         purposeofvisit: value,
-        purposeofvisitId: null, // Clear the purpose ID
-        otherPurpose: ''       // Clear other purpose field
+        purposeofvisitId: null, 
+        otherPurpose: ''       
       });
     } else {
       this.isOtherPurposeSelected = false;
       const value = selectedOption.purposeName;
       const purposeId = selectedOption.purposeId;
   
-      // Update the form with the selected purpose details
+      
       this.addvisitorForm.patchValue({
-        purposeofvisit: value, // Ensure this matches your form control name
+        purposeofvisit: value, 
         purposeofvisitId: purposeId,
-        otherPurpose: ''       // Clear other purpose field
+        otherPurpose: ''      
       });
   
       console.log('Purpose entered:', value);
@@ -320,21 +313,28 @@ openDialog(): void {
       });
     }
   
-    onCarryDeviceChange(value:number): void {
+    onCarryDeviceChange(value: number): void {
       if (value === 1) {
-        this.showDeviceOption = !this.showDeviceOption;
-        // this.addItem(); // Add an initial item if necessary
+        this.showDeviceOption = true; // Explicitly show the device options
         if (this.items.length === 0) {
           this.items.push(this.createItemFormGroup());
         }
-      } else if(value === 0) {
-        this.showDeviceOption = !this.showDeviceOption;
+      } else if (value === 0) {
+        this.showDeviceOption = false; // Explicitly hide the device options
         this.items.clear(); // Clear items if "No"
       }
     }
+    
   
     addItem(index: number): void {
       if (this.isInputFilled) {
+
+        if (this.items.length >= 5) {
+          this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Cannot add more than 5 devices!' });
+ 
+          console.warn('Cannot add more than 5 items.');
+          return;
+        }
         this.isPlusClicked = true;        
         // Create a new item form group with empty initial values
         
@@ -391,52 +391,55 @@ openDialog(): void {
       const items = this.addvisitorForm.get('items') as FormArray;
       const item = items.at(index);
     
-      console.log('Selected Option:', selectedOption);
-      
       if (selectedOption.deviceName === 'Other') {
+        // When "Other" is selected, set a dummy object for deviceCarried
         item.patchValue({
           isOtherDeviceSelected: true,
-           // Clear the field for "Other"
           DeviceSerialnumber: '', // Clear serial number
-         
+          deviceCarried: { deviceId: null, deviceName: 'Other' }, // Keep "Other" as the selected device
         });
       } else {
         item.patchValue({
           isOtherDeviceSelected: false, // Reset 'Other' flag
           otherDevice: '', // Clear 'Other' device input
-          deviceCarried: { deviceId: selectedOption.deviceId, deviceName: selectedOption.deviceName }, // Store as an object
+          deviceCarried: { deviceId: selectedOption.deviceId, deviceName: selectedOption.deviceName }, // Update with the selected device
         });
+
+        console.log('device name:', selectedOption.deviceName);
+      console.log('device ID:', items);
+
       }
-      // this.logFormDataBeforeSubmit();
-      this.updateFilteredDevice(index);
+    
+      this.updateFilteredDevice(index); // Ensure the filtered device list updates
     }
     
-    onOtherDeviceFocusOut(index: number): void {
-      const formGroup = this.items.controls[index] as FormGroup;
-      const isOtherDeviceSelected = formGroup.get('isOtherDeviceSelected')?.value;
-      const otherDeviceValue = formGroup.get('otherDevice')?.value;
-    console.log("other device",otherDeviceValue);
     
-      if (isOtherDeviceSelected && otherDeviceValue) {
-        this.storeOtherDevice(otherDeviceValue, index);
-      }
-    }
+    // onOtherDeviceFocusOut(index: number): void {
+    //   const formGroup = this.items.controls[index] as FormGroup;
+    //   const isOtherDeviceSelected = formGroup.get('isOtherDeviceSelected')?.value;
+    //   const otherDeviceValue = formGroup.get('otherDevice')?.value;
+    // console.log("other device",otherDeviceValue);
     
-    storeOtherDevice(value: string, index: number): void {
-      this.apiService.addDevice(value).subscribe(
-        (response: any) => {
-          console.log('Other device added successfully:', response);
-          const formGroup = this.items.at(index) as FormGroup;
-          formGroup.patchValue({
-            otherDeviceCarried: { deviceId: response.id, deviceName: value },
-          });
-          // this.logFormDataBeforeSubmit();
-        },
-        (error) => {
-          console.error('Error adding other device:', error);
-        }
-      );
-    }
+    //   if (isOtherDeviceSelected && otherDeviceValue) {
+    //     this.storeOtherDevice(otherDeviceValue, index);
+    //   }
+    // }
+    
+    // storeOtherDevice(value: string, index: number): void {
+    //   this.apiService.addDevice(value).subscribe(
+    //     (response: any) => {
+    //       console.log('Other device added successfully:', response);
+    //       const formGroup = this.items.at(index) as FormGroup;
+    //       formGroup.patchValue({
+    //         otherDeviceCarried: { deviceId: response.id, deviceName: value },
+    //       });
+    //       // this.logFormDataBeforeSubmit();
+    //     },
+    //     (error) => {
+    //       console.error('Error adding other device:', error);
+    //     }
+    //   );
+    // }
 
 
 // Method to log relevant data before submission
@@ -467,507 +470,162 @@ isFormValid(): boolean {
   const formData = this.addvisitorForm.value;
   return this.addvisitorForm.valid && formData.policy && this.capturedImage && localStorage.getItem('officeLocationId');
 }
+
+
+
 onSubmit(): void {
   const formData = this.addvisitorForm.value;
   const imageData = this.capturedImage;
-  const policy = formData.policy;
   const formSubmissionMode = "Link";
-  const selectedDate = formData.date; // This is a Date object
-
-  // Transform the date to the desired format
+  const selectedDate = formData.date;
   const formattedDate = this.transformDate(selectedDate);
 
-  // Use the formattedDate as needed, e.g., send to backend
-  console.log('Formatted Date:', formattedDate);
-  // 
-  
-  console.log('Purpose ID:', formData.purposeofvisitId);
-  console.log('Form Data:', formData);
-  if(!this.countryCode)
-  {
+  // Ensure country code is provided
+  if (!this.countryCode) {
     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill the country code!' });
     return;
   }
-  if (!formData.name || !formData.phoneNumber || !formData.personInContact || !formData.purposeofvisitId || !policy || !imageData) {
-    console.error('One or more required fields are missing.');
-    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill all the details!' });
+
+  const Number = this.addvisitorForm.get('phoneNumber')?.value;
+  if (!Number) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill the phone number!' });
     return;
   }
 
-  if (!policy) {
-    console.error('Policy not marked is empty.');
-    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please indicate your confirmation..' });
-    return;
-  }
-
-  if (!imageData) {
-    console.error('Image data is empty.');
-    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Image data is required.' });
-    return;
-  }
-
-  
-  // if (!officeLocationId) {
-  //   console.error('Office location ID not found in local storage.');
-  //   this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Office location ID is required.' });
-  //   return;
-  // }
-  // Check if any of the required fields are missing
- 
-  console.log("formdata items",formData.items);
-  
-  let selectedDevice = formData.items.map((item: any) => {
-    let deviceId = null;
-    let serialNumber = item.DeviceSerialnumber || null;
-  
-    if (item.deviceCarried && item.deviceCarried.deviceId) {
-      deviceId = item.deviceCarried.deviceId;
-    }
-  
-    if (item.otherDeviceCarried && item.otherDeviceCarried.deviceId) {
-      deviceId = item.otherDeviceCarried.deviceId;
-    }
-  
-    console.log("Constructed deviceId:", deviceId);
-  
-    return {
-      deviceId,
-      serialNumber,
-    };
-  });
-  
-  console.log("Final selectedDevice array:", selectedDevice);
-  
-  
+  const devicesToAdd = formData.items
+  .filter((item: any) => item.deviceCarried.deviceName === 'Other' && item.otherDevice) // Filter only items with 'Other' device and a valid otherDevice value
+  .map((item: any) => item.otherDevice); // Map to otherDevice values
 
 
-
-
-  // Log the selected devices
-  const visitorPayload = {
-    name: formData.name,
-    phoneNumber: formData.fullNumber,
-    personInContact: formData.personInContact,
-    purposeOfVisitId: formData.purposeofvisitId,
-    officeLocationId: formData.LocationId,
-    visitDate: formattedDate,
-    selectedDevice: selectedDevice,
-    formSubmissionMode:formSubmissionMode,
-    imageData: imageData
+  const addDevices = (deviceNames: string[]) => {
+    const addDeviceObservables = deviceNames.map((deviceName) => this.apiService.addDevice(deviceName));
+    return forkJoin(addDeviceObservables);
   };
 
-  console.log('Visitor Payload:', visitorPayload);
-
-  this.apiService.createVisitorAndAddItem(visitorPayload).subscribe(
-    (response) => {
-      console.log('Visitor and item added successfully:', response);
-      this.router.navigate(['/thankyou']);
-    },
-    (error) => {
-      this.messages = [{ severity: 'error', detail: 'Please fill all the details!' }];
-      console.error('Error adding visitor and item:', error);
-    }
-  );
-}
-  }
-// Filter out any items that didn't have a valid deviceId or serialNumber
-  // selectedDevice = selectedDevice.filter((item: any) => item.deviceId || item.serialNumber);
-  
-  // console.log("selectedDevice2", selectedDevice);
-  
-  // this.filteredDevice = this.items.at(0)?.get('deviceCarried')?.valueChanges.pipe(
-    //   startWith(''),
-    //   map(value => this._filterDevice(value || ''))
-    // ) ?? of([]);
-
-    // Subscribe to changes in the 'otherPurpose' field to handle 'Other' purpose
-    // this.addvisitorForm.get('otherPurpose')?.valueChanges.pipe(debounceTime(1000)).subscribe(value => {
-    //   if (this.isOtherPurposeSelected && value) {
-    //     this.storeOtherPurpose(value);
-    //   }
+  const processDeviceCarriedAndAddVisitor = (devices: any[]) => {
+    console.log("Received Devices:", devices);
+    // console.log("Received Device IDs:");
+    // devices.forEach((device, index) => {
+    //   console.log(`${index}:${device.id}`);
     // });
-  
-    // Subscribe to changes in each item's 'otherDevice' field
-    // this.items.controls.forEach((control: AbstractControl, index: number) => {
-    //   const formGroup = control as FormGroup;
-    //   formGroup.addControl('isOtherDeviceSelected', new FormControl(false));
-    //   formGroup.get('otherDevice')?.valueChanges.pipe(debounceTime(1000)).subscribe(value => {
-    //     if (formGroup.get('isOtherDeviceSelected')?.value && value) {
-    //       this.storeOtherDevice(value, index);
-    //     }
-    //   });
-    // });
-    //   onDeviceSelected(selectedOption: any, index: number): void {
-  //     const formGroup = this.items.at(index) as FormGroup;
-  
-  //     if (selectedOption.deviceName === 'Other') {
-  //      this.isOtherDeviceSelected=true
-  //         formGroup.patchValue({
-  //             deviceCarried: { deviceName: 'Other', deviceId: null },
-  //             DeviceSerialnumber: '',
-  //             otherDevice: ''  // Ensure this is cleared
-  //         });
-  //         formGroup.get('otherDevice')?.updateValueAndValidity();
-  //         this.storeOtherDevice(formGroup.get('otherDevice')?.value, index);
-  //     } else {
-  //         formGroup.patchValue({
-  //             deviceCarried: { deviceName: selectedOption.deviceName, deviceId: selectedOption.deviceId },
-  //             DeviceSerialnumber: '',
-  //             otherDevice: ''  // Clear the `otherDevice` field if not "Other"
-  //         });
-  //     }
-  
-  //     const deviceCarried = formGroup.get('deviceCarried')?.value;
-  //     const deviceSerialnumber = formGroup.get('DeviceSerialnumber')?.value;
-  //     const deviceId = selectedOption.deviceId;
-  //     console.log(`Device ID: ${deviceId}, Name: ${deviceCarried.deviceName}, Serial Number: ${deviceSerialnumber}`);
-  // }
-  
- // onDeviceSelected(selectedOption: any, index: number): void {
-    //   const formGroup = this.items.at(index) as FormGroup;
-    
-    //   if (selectedOption.deviceName === 'Other') {
-    //     formGroup.patchValue({
-    //       deviceCarried: { deviceName: 'Other', deviceId: null },
-    //       DeviceSerialnumber: '',
-    //       otherDevice: ''  // Ensure this is cleared
-    //     });
-    //     formGroup.get('isOtherDeviceSelected')?.setValue(true);
-    //     formGroup.get('otherDevice')?.updateValueAndValidity();
-    //   } else {
-    //     formGroup.patchValue({
-    //       deviceCarried: { deviceName: selectedOption.deviceName, deviceId: selectedOption.deviceId },
-    //       DeviceSerialnumber: '',
-    //       otherDevice: ''  // Clear the `otherDevice` field if not "Other"
-    //     });
-    //     formGroup.get('isOtherDeviceSelected')?.setValue(false);
-    //   }
-    
-    //   const deviceCarried = formGroup.get('deviceCarried')?.value;
-    //   const deviceSerialnumber = formGroup.get('DeviceSerialnumber')?.value;
-    //   const deviceId = selectedOption.deviceId;
-    
-    //   console.log(`Device ID: ${deviceId}, Name: ${deviceCarried.deviceName}, Serial Number: ${deviceSerialnumber}`);
-    // }
-    // onDeviceSelected(selectedOption: any, index: number): void {
-    //   const formGroup = this.items.at(index) as FormGroup;
-  
-    //   if (selectedOption.deviceName === 'Other') {
-    //     formGroup.patchValue({
-    //       deviceCarried: { deviceName: 'Other', deviceId: null },
-    //       DeviceSerialnumber: '',
-    //       otherDevice: ''
-    //     });
-    //     formGroup.get('otherDevice')?.updateValueAndValidity();
-    //   } else {
-    //     formGroup.patchValue({
-    //       deviceCarried: { deviceName: selectedOption.deviceName, deviceId: selectedOption.deviceId },
-    //       DeviceSerialnumber: '',
-    //       otherDevice: ''
-    //     });
-    //   }
-  
-    //   const deviceCarried = formGroup.get('deviceCarried')?.value;
-    //   const deviceSerialnumber = formGroup.get('DeviceSerialnumber')?.value;
-    //   const deviceId = selectedOption.deviceId;
-    //   console.log(`Device ID: ${deviceId}, Name: ${deviceCarried.deviceName}, Serial Number: ${deviceSerialnumber}`);
-    // }
-  
-    // onDeviceInput(value: string, index: number): void {
-    //   const formGroup = this.items.at(index) as FormGroup;
-    //   if (value !== 'Other') {
-    //     formGroup.patchValue({
-    //       deviceCarried: { deviceName: value, deviceId: null },
-    //       DeviceSerialnumber: '',
-    //       otherDevice: ''
-    //     });
-    //   }
-    // }
-  
-    // storeOtherDevice(value: string, index: number): void {
-    //   this.apiService.addDevice(value).subscribe(
-    //     (response: any) => {
-    //       const formGroup = this.items.at(index) as FormGroup;
-    //       formGroup.patchValue({
-    //         deviceCarried: { deviceName: value, deviceId: response.id },
-    //         otherDevice: '',
-    //         DeviceSerialnumber: ''
-    //       });
-    //     },
-    //     (error) => {
-    //       console.error('Error adding other device:', error);
-    //     }
-    //   );
-    // }
-   //   onItemChange(event: DeviceChangeEvent, index: number): void {
-    //     console.log('onSelect event:', event);
-    //     const value = event.value;
-    
-    //     // Check if the selected device is "none"
-    //     const isNone = value.deviceName.toLowerCase() === 'none' || value.deviceId === null; // Adjust the condition as necessary
-    
-    //     // Get the form group for the current item
-    //     const currentItem = this.items.at(index) as FormGroup;
-    
-    //     // Update the form group values
-    //     currentItem.patchValue({
-    //       selectedDevice: value.deviceName,
-    //       selectedDeviceId: value.deviceId, // Store the item ID
-    //       showItemOtherInput: !isNone && !!value // Set to false if "none" is selected, otherwise true
-    //     });
-    
-    //     // Set or clear the required validator for the DeviceSerialnumber control
-    //     const serialNumberControl = currentItem.get('DeviceSerialnumber');
-    //     if (serialNumberControl) { // Check if serialNumberControl is not null
-    //       if (value.deviceName === 'Laptop') {
-    //         serialNumberControl.setValidators([Validators.required]);
-    //       } else {
-    //         serialNumberControl.clearValidators();
-    //       }
-    //       serialNumberControl.updateValueAndValidity();
-    //     }
-    //     console.log(currentItem.value.selectedDeviceId);
-    //     console.log(currentItem.value.showItemOtherInput);
-    //   }
+
+    const otherDeviceIds = devices.map((device) => device.id); 
+    //console.log("Mapped Device IDs:", otherDeviceIds);
+
+    const addVisitor = (purposeId: any, devices: any[]) => {
+      let otherDevicePointer = 0;
+      const selectedDevices = formData.items.map((item: any, index: number) => {
+        // Use deviceCarried.deviceId if available, otherwise use the corresponding otherDeviceIds item
+        let deviceId = item.deviceCarried?.deviceId;
+
+      if (!deviceId && otherDevicePointer < otherDeviceIds.length) {
+    // Use the next available device ID from otherDeviceIds
+      deviceId = otherDeviceIds[otherDevicePointer];
+      otherDevicePointer++; // Move the pointer forward
+      }
+
       
-    //   onKeyUpHandlerDevice(event: KeyboardEvent, i: number) {
-    //     if (event.key === 'Enter') {
-    //       const customEvent: CustomKeyboardEvent = {
-    //         key: event.key,
-    //         target: {
-    //             value: (event.target as HTMLInputElement).value.trim()
-    //         }
-    //     };
-    //     this.onItemBlur(customEvent, i);
-    //     }
-    //   }
-    
-    //   onItemBlur(event:CustomKeyboardEvent, index: number): void {
-    //     console.log('onBlur event:', event);
-    //     const value = (event.target as HTMLInputElement).value.trim();
-    
-    //     // Check if the device name is empty or not provided
-    //     if (!value) {
-    //         return;
-    //     }
-    
-    //     // Check if the entered device exists in the list
-    //     const existingDevice = this.Devices.find(device => device.deviceName.toLowerCase() === value.toLowerCase());
-    //     console.log("existing device on blur", existingDevice);
-    
-    //     // Get the form group for the current item
-    //     const currentItem = this.items.at(index) as FormGroup;
-    
-    //     if (!existingDevice) {
-    //         // Device does not exist in the list, add it via API
-    //         this.apiService.addDevice({ deviceName: value }).subscribe(
-    //             (response: DeviceResponse) => {
-    //                 console.log("Device added successfully:", response);
-    
-    //                 // Update local devices list and form values
-    //                 this.Devices.push({ deviceId: response.deviceId, deviceName: value });
-    //                 currentItem.patchValue({
-    //                     selectedDevice: value,
-    //                     selectedDeviceId: response.deviceId, // Update form with the new device ID
-    //                     showItemOtherInput: true // Set to true to show the serial number input
-    //                 });
-    
-    //                 // Trigger change detection
-    //                 this.cdr.detectChanges();
-    
-    //                 console.log("new device", currentItem.value.selectedDeviceId);
-    //             },
-    //             (error) => {
-    //                 console.error('Error adding device:', error);
-    //                 // Handle error as needed
-    //             }
-    //         );
-    //     }
-    // }
-     
-    // filterItem(event: AutoCompleteCompleteEvent) {
-      //   let query = event.query.toLowerCase();
-      //   this.filteredDevice = this.Devices
-      //   .filter(Device => Device.deviceName.toLowerCase().includes(query))
-      //   .sort((a, b) => {
-      //       if (a.deviceName.toLowerCase() === 'none') return 1;
-      //       if (b.deviceName.toLowerCase() === 'none') return -1;
-      //       return a.deviceName.localeCompare(b.deviceName);
-      //   });
-      //    console.log(this.filteredDevice);
-         
-      // }
-       // filterPurpose(event: AutoCompleteCompleteEvent) {
-    //   let query = event.query.toLowerCase();
-    //   this.filteredPurposes = this.purposes
-    //   .filter(purpose => purpose.purposeName.toLowerCase().includes(query.toLowerCase()))
-    //   .sort((a, b) => a.purposeName.localeCompare(b.purposeName));
-    //    console.log(this.filteredPurposes);
-       // get $trigger():Observable<void>{
-//   return this.trigger.asObservable();
-// }
+      return {
+        deviceId, // It will be a number from the start
+        serialNumber: item.DeviceSerialnumber || null,
+      };
+      });
+  
 
-// checkPermission(){
-//   navigator.mediaDevices.getUserMedia({video:{width:500,height:500}}).then((response)=>
-//   {
-//     this.permissionStatus ='Allowed';
-//     this.camData = response;
-//     console.log(this.camData);
-//   }).catch(err=>{
-//     this.permissionStatus = 'Not Allowed';
-//     console.log(this.permissionStatus);
-    
-//   })
-// }
-
-// capture(event:WebcamImage){
-//   console.log("captured event",event);
-//   this.capturedImage = event.imageAsDataUrl;
-    
-// }
-
-// captureImage(){
-//   this.trigger.next();
-// }
-// import { FloatLabelModule } from 'primeng/floatlabel';
-// import { InputTextModule } from 'primeng/inputtext';// import { AutoCompleteCompleteEvent, AutoCompleteModule, AutoCompleteSelectEvent } from 'primeng/autocomplete';
-
-// import { PurposeChangeEvent } from '../../../Models/IPurposeChangeEvent';NgModelGroup,, MatAutocompleteSelectedEvent
+      const visitorPayload = {
+      name: formData.name,
+      phoneNumber: formData.fullNumber,
+      personInContact: formData.personInContact,
+      purposeOfVisitId: purposeId,
+      officeLocationId: formData.LocationId,
+      visitDate: formattedDate,
+      SelectedDevice : selectedDevices,
+      formSubmissionMode,
+      imageData,
+      };
 
 
-  // filterContact(event: AutoCompleteCompleteEvent) {
-  //   let query = event.query.toLowerCase();
-  //   this.filteredContacts = this.contacts
-  //   .filter(contact => contact.toLowerCase().includes(query))
-  //   .sort((a, b) => a.localeCompare(b));
-  //   console.log(this.filteredContacts);
-    
-  // }
+      if (!visitorPayload.name) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Visitor name is missing!' });
+        return;
+      }
+      if (!visitorPayload.phoneNumber) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Phone number is missing!' });
+        return;
+      }
+      if (!visitorPayload.personInContact) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Person in contact is missing!' });
+        return;
+      }
+      if (!visitorPayload.purposeOfVisitId) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Purpose of visit is missing!' });
+        return;
+      }
+      if (!visitorPayload.officeLocationId) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Office location is missing!' });
+        return;
+      }
+      if (!visitorPayload.visitDate) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Visit date is missing!' });
+        return;
+      }
+      if (!visitorPayload.imageData) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Image data is missing!' });
+        return;
+      }
 
-    // }
 
-      // onPurposeChange(event: any): void {
-  //   const selectedOption = event.option.value;
-  //   console.log("function claaed",selectedOption);
-  // //   let value: string;
-  // //   let purposeId: number | null = null;
-  // // console.log(selectedOption);
-  
-  // //   if (selectedOption && selectedOption.purposeName) {
-  // //     value = selectedOption.purposeName;
-  // //     purposeId = selectedOption.purposeId;
-  // //   } else if (typeof event === 'string') {
-  // //     value = event;
-  // //   } else {
-  // //     value = event?.option.value.purposeName || '';
-  // //   }
-  
-  // //   console.log('Purpose entered:', value);
-  
-  // //   const trimmedValue = value.trim();
-  // //   if (trimmedValue === '') {
-  // //     return; // Handle empty value case
-  // //   }
-  
-  // //   // Check if the entered purpose exists in the list
-  // //   const existingPurpose = this.purposes.
-  // //   find(purpose => purpose.purposeName.toLowerCase() === trimmedValue.toLowerCase());
-  // //   console.log("existing purpose", existingPurpose);
-  
-  // //   if (existingPurpose) {
-  // //     // Purpose exists in the list, update form values
-  // //     this.addvisitorForm.patchValue({
-  // //       selectedPurpose: existingPurpose.purposeName,
-  // //       purposeofvisitId: existingPurpose.purposeId // Store the purpose ID in the form control
-  // //     });
-  // //     console.log(this.addvisitorForm.value.purposeofvisitId);
-  // //   } else {
-  // //     // Purpose does not exist in the list, add it via API
-  // //     this.apiService.addPurpose(value).subscribe(
-  // //       (response: PurposeResponse) => {
-  // //         console.log("Purpose added successfully:", response);
-  
-  // //         // Update local purposes list and form values
-  // //         this.purposes.push({ purposeId: response.purposeId, purposeName: trimmedValue });
-  // //         this.addvisitorForm.patchValue({
-  // //           selectedPurpose: trimmedValue,
-  // //           purposeofvisitId: response.purposeId // Update form with the new purpose ID
-  // //         });
-  
-  // //         console.log("new purpose", this.addvisitorForm.value.purposeofvisitId);
-  // //       },
-  // //       (error) => {
-  // //         console.error('Error adding purpose:', error);
-  // //         // Handle error as needed
-  // //       }
-  // //     );
-  // //   }
-  // }
-  
-   //   onKeyUpHandlerPurpose(event: KeyboardEvent): void {
-    //     if (event.key === 'Enter') {
-    //         const inputElement = event.target as HTMLInputElement;
-    //         const value = inputElement.value;
-    //       //   const autoCompleteEvent: PurposeChangeEvent = {
-    //       //      // Assuming event is the original event you want to pass
-    //       //    purposeName: value 
-    //       // };
-    //       // this.onPurposeChange(value);
-    //     }
-    // }
 
-    // isItemEntered(index: number): boolean {
-    //   return this.items?.at(index)?.get('Device')?.value?.trim() !== '';
-    // }
-  //   onPurposeChange(event: any): void {
-  //     let value: string;
-    
-  //     // Check if the event is an AutoCompleteSelectEvent
-  //     if (event && event.originalEvent && event.originalEvent instanceof Event && event.item && event.item.purposeName) {
-  //       value = event.item.purposeName;
-  //     } else if (event && typeof event === 'string') {
-  //       value = event;
-  //     } else {
-  //       value = event?.purposeName || '';
-  //     }
-  //     console.log('Purpose entered:', value);
+      this.apiService.createVisitorAndAddItem(visitorPayload).subscribe(
+        (response) => {
+          console.log('Visitor added successfully:', response);
+          this.router.navigate(['/thankyou']);
+        },
+        (error) => {
+          console.error('Error adding visitor:', error);
+        }
+      );
+    };
 
-  // const trimmedValue = value.trim();
-  // if (trimmedValue === '') {
-  //   return; // Handle empty value case
-  // }
-  
-  //     // Check if the entered purpose exists in the list
-  //     const existingPurpose = this.purposes.find(purpose => purpose.purposeName.toLowerCase() === trimmedValue.toLowerCase());
-  //     console.log("existing purpose", existingPurpose);
-  
-  //     if (existingPurpose) {
-  //         // Purpose exists in the list, update form values
-  //         this.addvisitorForm.patchValue({
-  //             selectedPurpose: existingPurpose.purposeName,
-  //             purposeofvisitId: existingPurpose.purposeId // Store the purpose ID in the form control
-  //         });
-  //         console.log(this.addvisitorForm.value.purposeofvisitId);
-  //     } else {
-  //         // Purpose does not exist in the list, add it via API
-  //         this.apiService.addPurpose(value).subscribe(
-  //             (response: PurposeResponse) => {
-  //                 console.log("Purpose added successfully:", response);
-  
-  //                 // Update local purposes list and form values
-  //                 this.purposes.push({ purposeId: response.purposeId, purposeName: trimmedValue });
-  //                 this.addvisitorForm.patchValue({
-  //                     selectedPurpose: trimmedValue,
-  //                     purposeofvisitId: response.purposeId // Update form with the new purpose ID
-  //                 });
-  
-  //                 console.log("new purpose", this.addvisitorForm.value.purposeofvisitId);
-  //             },
-  //             (error) => {
-  //                 console.error('Error adding purpose:', error);
-  //                 // Handle error as needed
-  //             }
-  //         );
-  //     }
-  // }
- 
+    if (formData.purposeofvisitId) {
+      // Purpose ID is available, proceed with adding the visitor
+      addVisitor(formData.purposeofvisitId, devices);
+    } else if (this.isOtherPurposeSelected) {
+      // "Other" purpose selected, add the new purpose first
+      const otherPurposeValue = formData.otherPurpose;
+      this.apiService.addPurpose(otherPurposeValue).subscribe(
+        (response: any) => {
+          console.log("Other purpose added successfully:", response);
+          const newPurposeId = response.id;
+          this.addvisitorForm.patchValue({ purposeofvisitId: newPurposeId });
+          addVisitor(newPurposeId, devices);
+        },
+        (error) => {
+          console.error('Error adding other purpose:', error);
+        }
+      );
+    }
+  };
+
+  // Handle devices and purpose
+  if (devicesToAdd.length > 0) {
+    addDevices(devicesToAdd).subscribe(
+      (responses) => {
+        const addedDevices = responses.map((response: any) => ({
+          id: response.id,
+          name: response.name,
+
+        }));
+        console.log("device added",addedDevices);
+        processDeviceCarriedAndAddVisitor(addedDevices);
+      },
+      (error) => {
+        console.error('Error adding devices:', error);
+      }
+    );
+  } else {
+    processDeviceCarriedAndAddVisitor([]);
+  }
+}
+
+  }

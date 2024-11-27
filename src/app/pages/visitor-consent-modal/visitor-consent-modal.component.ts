@@ -1,4 +1,4 @@
-import { NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms'; // Import FormsModule here
 import { MatDialogRef } from '@angular/material/dialog';
@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 @Component({
   selector: 'app-visitor-consent-modal',
   standalone: true,
-  imports: [FormsModule,NgIf,MatDialogModule,MatButtonModule,MatInputModule ],
+  imports: [FormsModule,MatDialogModule,MatButtonModule ,MatInputModule],
   templateUrl:'./visitor-consent-modal.component.html',
   styleUrl: './visitor-consent-modal.component.scss'
 })
