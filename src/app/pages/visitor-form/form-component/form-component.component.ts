@@ -575,7 +575,7 @@ onSubmit(): void {
       }
 
 
-
+      this.router.navigate(['/loadingPage']);
       this.apiService.createVisitorAndAddItem(visitorPayload).subscribe(
         (response) => {
           console.log('Visitor added successfully:', response);
