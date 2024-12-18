@@ -23,7 +23,7 @@ import {MatInputModule} from '@angular/material/input';
 import {  forkJoin, map, Observable, of, startWith, Subject } from 'rxjs';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { VisitorConsentModalComponent } from '../../visitor-consent-modal/visitor-consent-modal.component';
-import { alphabetValidator, futureDateValidator, numberValidator } from '../custom-validators';
+import { alphabetValidator,  futureDateValidator, numberValidator, phoneNumberValidator } from '../custom-validators';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { GetIdAndName } from '../../../Models/getIdAndName.interface';
 
@@ -84,7 +84,7 @@ export class FormComponentComponent {
       fullNumber:['', Validators.required],
       countryCode:['', Validators.required],
       date: [null, [Validators.required,futureDateValidator()]],
-      phoneNumber: ['', [Validators.required,numberValidator()]],
+      phoneNumber: ['', [Validators.required,numberValidator(),phoneNumberValidator(() => this.countryCode)]],
       personInContact: ['',[ Validators.required,alphabetValidator()]],
       purposeofvisit: ['', Validators.required],
       purposeofvisitId: ['', Validators.required],
@@ -117,12 +117,15 @@ export class FormComponentComponent {
     date.setHours(0, 0, 0, 0);
     return this.datePipe.transform(date, 'yyyy-MM-ddTHH:mm:ss') ?? '';
   }
+
+
   onCountryChange(country: any) {
-    // console.log(country.dialling_code);  
-     this.countryCode = country.dialling_code; 
+     console.log("initial",country.dialling_code);  
+     this.countryCode = country.dialling_code;      
      this.fullPhoneNumber();
-    
+     this.addvisitorForm.get('phoneNumber')?.updateValueAndValidity();
   }
+ 
    fullPhoneNumber() {
     const Number = this.addvisitorForm.get('phoneNumber')?.value;
     const fullNumber =this.countryCode+"-"+Number

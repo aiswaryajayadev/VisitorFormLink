@@ -38,6 +38,25 @@ export function numberValidator(): ValidatorFn {
   };
 }
 
+export function phoneNumberValidator(countryCodeGetter: () => string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const phoneNumber = control.value;
+    const countryCode = countryCodeGetter();
+
+    if (!phoneNumber) {
+      return null; // Skip validation if the phone number is empty; `required` will handle this.
+    }
+
+    if (countryCode === '+91' && phoneNumber.length !== 10) {
+      return { invalidPhoneNumber: true };
+    }
+
+    return null; // Return null if validation passes
+  };
+}
+
+
+
 export function futureDateValidator() {
   return (control: AbstractControl): { [key: string]: any } | null => {
     const today = new Date();
