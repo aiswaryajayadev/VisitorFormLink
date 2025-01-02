@@ -482,7 +482,13 @@ onSubmit(): void {
   const formSubmissionMode = "Link";
   const selectedDate = formData.date;
   const formattedDate = this.transformDate(selectedDate);
+  const policy = formData.policy;
 
+
+  if (!policy) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please accept the privacy policy to proceed !' });
+    return;
+  }
   // Ensure country code is provided
   if (!this.countryCode) {
     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill the country code!' });
