@@ -183,7 +183,7 @@
             <i class="material-icons plus" 
             [class.disabled]="!isInputFilled"
             [attr.disabled]="!isInputFilled ? true : null"
-            matTooltip="Add Device" (click)="addItem(i)">add_circle</i>
+            matTooltip="Add more devices" (click)="addItem(i)">add_circle</i>
             <i *ngIf="i > 0" class="material-icons  minus" 
            matTooltip="Remove Device" (click)="removeItem(i)">remove_circle</i>   
           </div>
