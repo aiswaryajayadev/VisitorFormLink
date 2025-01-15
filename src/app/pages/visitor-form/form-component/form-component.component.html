@@ -152,11 +152,12 @@
       
     
   </div>
-  <div *ngIf="showDeviceOption">
+  <div *ngIf="showDeviceOption" class=" device-group">
     <div formArrayName="items">
       <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
         <div class="row mb-3" style="margin-left: 23px;">
-          <div class="col">
+          
+                    <div class="col">
             <label class="inputLabel">Device Carried<span class="astrik">*</span></label>
             <mat-form-field class="DeviceInput" appearance="outline">
               <mat-label class="placeHolder">Select a Device</mat-label>
@@ -178,17 +179,44 @@
               </mat-error>  
             </mat-form-field>
           </div>
-          <div class="col d-flex align-items-end">
+          <div class="col d-flex align-items-start">
             <div class="deviceControl">
-            <i class="material-icons plus" 
+              <button 
+              class="add-button plus material-icons" 
+              type="button" 
+              [class.disabled]="!isInputFilled"
+            [attr.disabled]="!isInputFilled ? true : null"
+              matTooltip="Add more devices" 
+              (click)="addItem(i)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+              <!-- Add Device -->
+             
+              </button>
+            <!-- <i class="material-icons plus" 
             [class.disabled]="!isInputFilled"
             [attr.disabled]="!isInputFilled ? true : null"
-            matTooltip="Add more devices" (click)="addItem(i)">add_circle</i>
-            <i *ngIf="i > 0" class="material-icons  minus" 
-           matTooltip="Remove Device" (click)="removeItem(i)">remove_circle</i>   
+            matTooltip="Add more devices" (click)="addItem(i)">add_circle</i> -->
+            <!-- <i *ngIf="i > 0" class="material-icons  minus" 
+           matTooltip="Remove Device" (click)="removeItem(i)">remove_circle</i>    -->
+
+           <button *ngIf="i > 0"
+           class="add-button minus material-icons" 
+           type="button"           
+           matTooltip="Remove Device" 
+           (click)="removeItem(i)">
+           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M200-440v-80h560v80H200Z"/></svg>
+            <!-- Remove Device -->
+           </button>
+       
+
+
+
+
+
           </div>
 
           </div>
+        
         </div>
   
         <!-- Show the input for entering other device if 'Other' is selected -->
@@ -223,7 +251,7 @@
   </div>
   
   
-  
+               
   
   
   <div class="row mb-3">
