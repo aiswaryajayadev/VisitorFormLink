@@ -17,7 +17,7 @@ export class VisitorConsentModalComponent {
   currentDate: string;
   location:string="Gayathri";
   constructor(private router: Router,public dialogRef: MatDialogRef<VisitorConsentModalComponent>) {
-    this.currentDate = new Date().toISOString().split('T')[0];
+    this.currentDate = new Date().toISOString().split('T')[0].split('-').reverse().join('-');
   }
   closeAndNavigate(): void {
     this.router.navigate(['/shared-table']);
