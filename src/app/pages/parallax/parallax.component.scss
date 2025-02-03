@@ -19,7 +19,19 @@ h1 {
 }
 
 
-
+.product-name {
+  text-align: center;
+  position: absolute;
+  right: 60px;
+  color: white;
+  top: 20px;
+  p {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    
+  }
+}
 
 .logo {
   position: absolute;
@@ -46,7 +58,8 @@ h1 {
 .slide-container {
   width: 350px;
   height: 60px;
-  background-color:#684683;
+  background-color:#472365;
+  font-weight: bold;
   color: white;
   border-radius: 25px;
   border: none;
@@ -54,7 +67,7 @@ h1 {
 
 }
 .slide-container:hover {
-  background-color:#472365;
+  background-color:#684683;
 }
 
 
