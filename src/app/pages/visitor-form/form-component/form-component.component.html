@@ -65,7 +65,7 @@
           <div class="col">
             <label  class="inputLabel">Venue<span class="astrik">*</span> </label>
             <mat-form-field appearance="outline" class="largeInput form-control">
-                <mat-label class="placeHolder">Select a Location</mat-label>
+                <mat-label class="placeHolder">Select a location from the list</mat-label>
                 <mat-select [(value)]="selectedLocation" formControlName="LocationId" (selectionChange)="onLocationChange($event.value)">
                   <mat-option *ngFor="let location of Locations" [value]="location.id" >
                     {{ location.name }}
@@ -83,7 +83,7 @@
             <div class="col">
               <label class="inputLabel">Purpose Of Visit<span class="astrik">*</span></label>
               <mat-form-field class="largeInput" appearance="outline">
-                <mat-label class="placeHolder">Select a Purpose of Visit</mat-label>
+                <mat-label class="placeHolder">Select a purpose of visit from the list</mat-label>
                 <input type="text"
                        matInput
                        formControlName="purposeofvisit"
@@ -160,7 +160,7 @@
                     <div class="col">
             <label class="inputLabel">Device Carried<span class="astrik">*</span></label>
             <mat-form-field class="DeviceInput" appearance="outline">
-              <mat-label class="placeHolder">Select a Device</mat-label>
+              <mat-label class="placeHolder">Select a device form the list</mat-label>
               <input type="text"
                      matInput     
                      (focus)="onFocus(i)"
