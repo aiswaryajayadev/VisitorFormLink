@@ -1,137 +1,132 @@
-
 <p-toast />
 <form class="visitorForm" [formGroup]="addvisitorForm" (ngSubmit)="onSubmit()">
-  
+
   <div class="row mb-3">
     <div class="col">
-      <label  class="inputLabel">Name<span class="astrik">*</span> </label>
+      <label class="inputLabel">Name<span class="astrik">*</span> </label>
       <mat-form-field appearance="outline" class="smallInput form-control">
-          <mat-label class="placeHolder">Enter the Name</mat-label>
-          <input matInput formControlName="name" id="name">
-          <mat-error *ngIf="addvisitorForm.get('name')?.hasError('alphabetOnly')">
-            *Only alphabetic characters are allowed.
-          </mat-error>
-          <mat-error *ngIf="addvisitorForm.get('name')?.hasError('required')">
-            *Required Field
-          </mat-error>
+        <mat-label class="placeHolder">Enter the Name</mat-label>
+        <input matInput formControlName="name" id="name">
+        <mat-error *ngIf="addvisitorForm.get('name')?.hasError('alphabetOnly')">
+          *Only alphabetic characters are allowed.
+        </mat-error>
+        <mat-error *ngIf="addvisitorForm.get('name')?.hasError('required')">
+          *Required Field
+        </mat-error>
       </mat-form-field>
-  </div>
-         
-     
-      <div class="col">
-        <label  class="inputLabel">Phone Number<span class="astrik">*</span> </label>
-        <div class="phonenumber">
-          <div class="code">
-        <lib-country-list class="countryCode"[selectedCountryConfig]="selectedCountryConfig" [countryListConfig]="countryListConfig" [ariaPlaceholder]=""
-      (onCountryChange)="onCountryChange($event)"></lib-country-list>
-     
     </div>
 
-    <div class="number">
-        <mat-form-field appearance="outline" class="phone form-control">
-          
+
+    <div class="col">
+      <label class="inputLabel">Phone Number<span class="astrik">*</span> </label>
+      <div class="phonenumber">
+        <div class="code">
+          <lib-country-list class="countryCode" [selectedCountryConfig]="selectedCountryConfig"
+            [countryListConfig]="countryListConfig" [ariaPlaceholder]=""
+            (onCountryChange)="onCountryChange($event)"></lib-country-list>
+
+        </div>
+
+        <div class="number">
+          <mat-form-field appearance="outline" class="phone form-control">
+
             <mat-label class="placeHolder">Enter the Phone Number</mat-label>
-            <input matInput  id="phoneNumber" name="phoneNumber" formControlName="phoneNumber" (change)="fullPhoneNumber()">
-            <mat-error *ngIf="addvisitorForm.get('phoneNumber')?.hasError('numberOnly')&& addvisitorForm.get('phoneNumber')?.touched" class="astrik">
-            Phone number must be a numeric value having 6 to 14 digits length.
+            <input matInput id="phoneNumber" name="phoneNumber" formControlName="phoneNumber"
+              (change)="fullPhoneNumber()">
+            <mat-error
+              *ngIf="addvisitorForm.get('phoneNumber')?.hasError('numberOnly')&& addvisitorForm.get('phoneNumber')?.touched"
+              class="astrik">
+              Phone number must be a numeric value having 6 to 14 digits length.
             </mat-error>
-            <mat-error 
-            *ngIf="addvisitorForm.get('phoneNumber')?.hasError('invalidPhoneNumber')">
-            Phone number must be exactly 10 digits for country code +91.
-          </mat-error>
+            <mat-error *ngIf="addvisitorForm.get('phoneNumber')?.hasError('invalidPhoneNumber')">
+              Phone number must be exactly 10 digits for country code +91.
+            </mat-error>
             <mat-error *ngIf="addvisitorForm.get('phoneNumber')?.hasError('required')">
               *Required Field
             </mat-error>
-           
-        </mat-form-field>
+
+          </mat-form-field>
+        </div>
       </div>
-      </div>
-    </div>   
+    </div>
   </div>
   <div class="row mb-3">
     <div class="col">
-      <label  class="inputLabel">Person to Meet<span class="astrik">*</span> </label>
+      <label class="inputLabel">Person to Meet<span class="astrik">*</span> </label>
       <mat-form-field appearance="outline" class="largeInput form-control">
-          <mat-label class="placeHolder">Enter the name of the host</mat-label>
-          <input matInput formControlName="personInContact" >
-          <mat-error *ngIf="addvisitorForm.get('personInContact')?.hasError('alphabetOnly')">
-            Only alphabetic characters are allowed.
-          </mat-error>
-          <mat-error *ngIf="addvisitorForm.get('personInContact')?.hasError('required')">
+        <mat-label class="placeHolder">Enter the name of the host</mat-label>
+        <input matInput formControlName="personInContact">
+        <mat-error *ngIf="addvisitorForm.get('personInContact')?.hasError('alphabetOnly')">
+          Only alphabetic characters are allowed.
+        </mat-error>
+        <mat-error *ngIf="addvisitorForm.get('personInContact')?.hasError('required')">
+          *Required Field
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="col">
+      <label class="inputLabel">Venue<span class="astrik">*</span> </label>
+      <mat-form-field appearance="outline" class="largeInput form-control">
+        <mat-label class="placeHolder">Select a location from the list</mat-label>
+        <mat-select [(value)]="selectedLocation" formControlName="LocationId"
+          (selectionChange)="onLocationChange($event.value)">
+          <mat-option *ngFor="let location of Locations" [value]="location.id">
+            {{ location.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addvisitorForm.get('LocationId')?.hasError('required')" class="error">
+          Required Field*
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+
+  <div class="row mb-3">
+    <div class="col">
+      <label class="inputLabel">Purpose Of Visit<span class="astrik">*</span></label>
+      <mat-form-field class="largeInput" appearance="outline">
+        <mat-label class="placeHolder">Select a purpose of visit from the list</mat-label>
+        <input type="text" matInput formControlName="purposeofvisit" [formControl]="myControl"
+          [matAutocomplete]="autoPurpose" (focus)="onInputFocus()">
+        <mat-autocomplete autoActiveFirstOption #autoPurpose="matAutocomplete" [displayWith]="displayPurpose"
+          (optionSelected)="onPurposeSelected($event.option.value)">
+          <mat-option *ngFor="let option of filteredPurposes | async" [value]="option">
+            {{option.purposeName }}
+          </mat-option>
+          <mat-option [value]="{ purposeName: 'Other', purposeId: null }">Other</mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="addvisitorForm.get('purposeofvisit')?.hasError('required')">
+          *Required Field
+        </mat-error>
+      </mat-form-field>
+      <div *ngIf="isOtherPurposeSelected">
+        <mat-form-field class="largeInput" appearance="outline">
+          <mat-label class="placeHolder">Enter Other Purpose of Visit</mat-label>
+          <input type="text" matInput formControlName="otherPurpose">
+          <mat-error *ngIf="addvisitorForm.get('otherPurpose')?.hasError('required')">
             *Required Field
           </mat-error>
-      </mat-form-field>         
-          </div>
-          <div class="col">
-            <label  class="inputLabel">Venue<span class="astrik">*</span> </label>
-            <mat-form-field appearance="outline" class="largeInput form-control">
-                <mat-label class="placeHolder">Select a location from the list</mat-label>
-                <mat-select [(value)]="selectedLocation" formControlName="LocationId" (selectionChange)="onLocationChange($event.value)">
-                  <mat-option *ngFor="let location of Locations" [value]="location.id" >
-                    {{ location.name }}
-                  </mat-option>
-                </mat-select>
-                <mat-error *ngIf="addvisitorForm.get('LocationId')?.hasError('required')" class="error">
-                  Required Field*
-                </mat-error>
-            </mat-form-field>         
-                </div>
+        </mat-form-field>
       </div>
-     
- 
-          <div class="row mb-3">
-            <div class="col">
-              <label class="inputLabel">Purpose Of Visit<span class="astrik">*</span></label>
-              <mat-form-field class="largeInput" appearance="outline">
-                <mat-label class="placeHolder">Select a purpose of visit from the list</mat-label>
-                <input type="text"
-                       matInput
-                       formControlName="purposeofvisit"
-                       [formControl]="myControl"
-                       [matAutocomplete]="autoPurpose"
-                       (focus)="onInputFocus()">
-                <mat-autocomplete autoActiveFirstOption #autoPurpose="matAutocomplete"
-                [displayWith]="displayPurpose"
-                                  (optionSelected)="onPurposeSelected($event.option.value)">
-                  <mat-option *ngFor="let option of filteredPurposes | async" [value]="option">
-                    {{option.purposeName }}
-                  </mat-option>
-                  <mat-option [value]="{ purposeName: 'Other', purposeId: null }">Other</mat-option>
-              </mat-autocomplete> 
-              <mat-error *ngIf="addvisitorForm.get('purposeofvisit')?.hasError('required')">
-                *Required Field
-              </mat-error>            
-              </mat-form-field>          
-              <div *ngIf="isOtherPurposeSelected">
-                <mat-form-field class="largeInput" appearance="outline">
-                  <mat-label class="placeHolder">Enter Other Purpose of Visit</mat-label>
-                  <input type="text"
-                         matInput
-                         formControlName="otherPurpose"
-                         >
-                         <mat-error *ngIf="addvisitorForm.get('otherPurpose')?.hasError('required')">
-                          *Required Field
-                        </mat-error>  
-                </mat-form-field>
-              </div>          
-            
-            </div>
-            <div class="col">
-              <label  class="inputLabel">Visit Date<span class="astrik">*</span> </label>
-              <mat-form-field appearance="outline" class="largeInput form-control">
-                <mat-label>Choose a date</mat-label>
-                <input matInput [matDatepicker]="picker" formControlName="date" [matDatepickerFilter]="dateFilter">
-                <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-                <mat-error *ngIf="addvisitorForm.get('date')?.hasError('required')" class="error">
-                  Required Field*
-                </mat-error>
-              </mat-form-field>         
-                  </div>
-          </div>
-          
-  
+
+    </div>
+    <div class="col">
+      <label class="inputLabel">Visit Date<span class="astrik">*</span> </label>
+      <mat-form-field appearance="outline" class="largeInput form-control">
+        <mat-label>Choose a date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="date" [matDatepickerFilter]="dateFilter">
+        <!-- <mat-hint>MM/DD/YYYY</mat-hint> -->
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="addvisitorForm.get('date')?.hasError('required')" class="error">
+          Required Field*
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+
 
   <div class="row mb-3">
     <div class="col">
@@ -141,161 +136,172 @@
           <mat-radio-button [value]="1">Yes</mat-radio-button>
           <mat-radio-button [value]="0">No</mat-radio-button>
         </mat-radio-group>
-        
+
         <mat-error *ngIf="addvisitorForm.get('carryDevice')?.hasError('required')">
           *Required Field
-        </mat-error>   
-      
+        </mat-error>
+
       </div>
     </div>
-    
-      
-    
   </div>
+
   <div *ngIf="showDeviceOption" class=" device-group">
     <div formArrayName="items">
-      <div *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+      <div *ngFor="let item of items.controls; let i = index trackBy: trackByIndex" [formGroupName]="i">
         <div class="row mb-3" style="margin-left: 23px;">
-          
-                    <div class="col">
-            <label class="inputLabel">Device Carried<span class="astrik">*</span></label>
+
+          <div class="col">
+            <label class="inputLabel" [attr.for]="'deviceCarried-' + i">
+              Device Carried<span class="astrik">*</span>
+            </label>
+
             <mat-form-field class="DeviceInput" appearance="outline">
-              <mat-label class="placeHolder">Select a device form the list</mat-label>
-              <input type="text"
-                     matInput     
-                     (focus)="onFocus(i)"
-                     [formControl]="getDeviceCarriedControl(i)"        
-                     formControlName="deviceCarried"                    
-                     [matAutocomplete]="autoDevice">
+              <mat-label class="placeHolder">Select a device from the list</mat-label>
+
+              <input type="text" matInput (focus)="onFocus(i)" [formControl]="getDeviceCarriedControl(i)"
+                formControlName="deviceCarried" [matAutocomplete]="autoDevice" [attr.id]="'deviceCarried-' + i"
+                [attr.name]="'deviceCarried-' + i" />
+
               <mat-autocomplete autoActiveFirstOption #autoDevice="matAutocomplete" [displayWith]="displayDevice"
-               (optionSelected)="onDeviceSelected($event.option.value, i)">
+                (optionSelected)="onDeviceSelected($event.option.value, i)">
+
                 <mat-option *ngFor="let option of filteredDevice | async" [value]="option">
                   {{ option.deviceName }}
                 </mat-option>
+
                 <mat-option [value]="{ deviceName: 'Other', deviceId: null }">Other</mat-option>
               </mat-autocomplete>
-              <mat-error *ngIf="addvisitorForm.get('deviceCarried')?.hasError('required')">
+
+              <mat-error *ngIf="getDeviceCarriedControl(i)?.hasError('required')">
                 *Required Field
-              </mat-error>  
+              </mat-error>
             </mat-form-field>
           </div>
+
           <div class="col d-flex align-items-start">
             <div class="deviceControl">
-              <button 
-              class="add-button plus material-icons" 
-              type="button" 
-              [class.disabled]="!isInputFilled"
-            [attr.disabled]="!isInputFilled ? true : null"
-              matTooltip="Add more devices" 
-              (click)="addItem(i)">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-              <!-- Add Device -->
-             
+              <button class="add-button plus material-icons" type="button" [class.disabled]="!isInputFilled"
+                [attr.disabled]="!isInputFilled ? true : null" matTooltip="Add more devices" (click)="addItem(i)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                  fill="#e8eaed">
+                  <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+                </svg>
+                <!-- Add Device -->
+
               </button>
-            <!-- <i class="material-icons plus" 
+              <!-- <i class="material-icons plus" 
             [class.disabled]="!isInputFilled"
             [attr.disabled]="!isInputFilled ? true : null"
             matTooltip="Add more devices" (click)="addItem(i)">add_circle</i> -->
-            <!-- <i *ngIf="i > 0" class="material-icons  minus" 
+              <!-- <i *ngIf="i > 0" class="material-icons  minus" 
            matTooltip="Remove Device" (click)="removeItem(i)">remove_circle</i>    -->
 
-           <button *ngIf="i > 0"
-           class="add-button minus material-icons" 
-           type="button"           
-           matTooltip="Remove Device" 
-           (click)="removeItem(i)">
-           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M200-440v-80h560v80H200Z"/></svg>
-            <!-- Remove Device -->
-           </button>
-       
+              <button *ngIf="i > 0" class="add-button minus material-icons" type="button" matTooltip="Remove Device"
+                (click)="removeItem(i)">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                  fill="#e8eaed">
+                  <path d="M200-440v-80h560v80H200Z" />
+                </svg>
+                <!-- Remove Device -->
+              </button>
 
 
 
 
+
+
+            </div>
 
           </div>
 
-          </div>
-        
         </div>
-  
+
         <!-- Show the input for entering other device if 'Other' is selected -->
         <div class="row mb-3" *ngIf="item.get('isOtherDeviceSelected')?.value">
-          <div class="">
+          <div>
             <mat-form-field appearance="outline" class="otherDevicelargeInput">
               <mat-label class="placeHolder">Enter Other Device</mat-label>
-              <input matInput formControlName="otherDevice"   >
-              <mat-error *ngIf="addvisitorForm.get('otherDevice')?.hasError('required')">
+
+              <input matInput formControlName="otherDevice" [attr.id]="'otherDevice-' + i"
+                [attr.name]="'otherDevice-' + i" />
+
+              <mat-error *ngIf="item.get('otherDevice')?.hasError('required')">
                 *Required Field
-              </mat-error> 
+              </mat-error>
             </mat-form-field>
           </div>
         </div>
-  
+
+
         <!-- Show the serial number input for any selected device -->
         <div class="row mb-3" *ngIf="item.get('deviceCarried')?.value && !item.get('isOtherDeviceSelected')?.value">
           <div class="SerialNumber">
             <mat-form-field appearance="outline" class="serialInput">
               <mat-label class="placeHolder">Enter Serial Number</mat-label>
-              <input matInput name="DeviceSerialnumber" id="serialNumber" formControlName="DeviceSerialnumber">
-           
+              <input matInput [attr.name]="'DeviceSerialnumber-' + i" [attr.id]="'serialNumber-' + i"
+                formControlName="DeviceSerialnumber">
+
+
               <mat-error *ngIf="item.get('DeviceSerialnumber')?.hasError('required') ">
                 *Serial Number is required.
-              </mat-error> 
+              </mat-error>
             </mat-form-field>
-          
+
           </div>
         </div>
       </div>
     </div>
   </div>
-  
-  
-               
-  
-  
+
+
+
+
+
   <div class="row mb-3">
-      <div class="form-check">
-          <mat-checkbox class="form-check-input"  formControlName="policy" type="checkbox" id="privacyPolicy" required>
-          <label class="form-check-label" for="privacyPolicy">
-              I confirm, I have read and agreed to Experion Technologies'<a (click)="openPrivacyPolicyDialog(); $event.preventDefault();"> Privacy Policy </a>and consent to sharing my information.
-          </label></mat-checkbox>
-          <div *ngIf="addvisitorForm.get('policy')?.hasError('required') && addvisitorForm.get('policy')?.touched" class="astrik">
-            *Please indicate your confirmation..
-          </div>
+    <div class="form-check">
+      <mat-checkbox class="form-check-input" formControlName="policy" type="checkbox" id="privacyPolicy" required>
+        <label class="form-check-label" for="privacyPolicy">
+          I confirm, I have read and agreed to Experion Technologies'<a
+            (click)="openPrivacyPolicyDialog(); $event.preventDefault();"> Privacy Policy </a>and consent to sharing my
+          information.
+        </label></mat-checkbox>
+      <div *ngIf="addvisitorForm.get('policy')?.hasError('required') && addvisitorForm.get('policy')?.touched"
+        class="astrik">
+        *Please indicate your confirmation..
       </div>
+    </div>
   </div>
   <div class="row mb-3">
- 
-   <div class="col">
-        <button class=" button3"(click)="openDialog()" type="button">
-          <i class="material-icons  camera">photo_camera</i>
-           Photo<span class="astrik-white">*</span>
+
+    <div class="col">
+      <button class=" button3" (click)="openDialog()" type="button">
+        <i class="material-icons  camera">photo_camera</i>
+        Photo<span class="astrik-white">*</span>
       </button>
-   
+
+    </div>
+    <div class="col">
+      <div *ngIf="capturedImage">
+        <!-- Display before compression -->
+        <img [src]="capturedImage" alt="Captured Image" class="capturedPhoto" />
       </div>
-      <div class="col">
-        <div *ngIf="capturedImage">
-          <!-- Display before compression -->
-          <img [src]="capturedImage" alt="Captured Image" class="capturedPhoto"/>
-        </div>
-      </div>
-      <div class="col">        
-          <button class="button3 submitButtonHieght" type="submit">
-              Submit
-          </button>
-      </div>
-     
+    </div>
+    <div class="col">
+      <button class="button3 submitButtonHieght" type="submit">
+        Submit
+      </button>
+    </div>
+
   </div>
-  
+
 </form>
 <!-- <div *ngIf="addvisitorForm.get('personInContact')?.hasError('required')&& addvisitorForm.get('personInContact')?.touched"class="astrik">
             *Name of the host is required.
           </div>  -->
- <!-- <div *ngIf="addvisitorForm.get('phoneNumber')?.hasError('required')&& addvisitorForm.get('phoneNumber')?.touched" class="astrik">
+<!-- <div *ngIf="addvisitorForm.get('phoneNumber')?.hasError('required')&& addvisitorForm.get('phoneNumber')?.touched" class="astrik">
       *Phone Number is required.
     </div> -->
-      <!-- <div class="col">
+<!-- <div class="col">
           <label class="inputLabel">Phone Number<span class="astrik">*</span></label>
                      
               <input type="text"  class="form-control smallInput p-inputtext" id="phoneNumber" name="phoneNumber" required
@@ -305,7 +311,7 @@
             
       </div> -->
 <!-- [ngClass]="{ 'plusBtnHide': !isItemEntered(i) }" -->
-  <!-- <p-floatLabel> 
+<!-- <p-floatLabel> 
             <p-autoComplete class="customInput"                            
                             (onSelect)="onItemChange($event, i)"
                             (keyup)="onKeyUpHandlerDevice($event, i)"
@@ -320,13 +326,13 @@
             </p-autoComplete>
             <label for="autocomplete-input">Enter the Device Carried</label>
           </p-floatLabel>  -->
-            <!-- <div *ngIf="item.get('Device')?.hasError('required') && item.get('Device')?.touched" class="astrik">
+<!-- <div *ngIf="item.get('Device')?.hasError('required') && item.get('Device')?.touched" class="astrik">
               *Device is required.
-            </div> -->          
-         <!-- <div>
+            </div> -->
+<!-- <div>
           <button (click)="checkPermission()">checkPermission</button>
          </div> -->
-         <!-- <div *ngIf="camData">
+<!-- <div *ngIf="camData">
           <webcam [trigger]="$trigger" (imageCapture)="capture($event)"></webcam>
           <button (click)="captureImage()">show</button>
          </div>
@@ -335,7 +341,7 @@
             <img [src]="capturedImage">
           </div>
          </div> -->
-          <!-- <div class="col">
+<!-- <div class="col">
         <button (click)="checkPermission()" class=" button3" type="button">
          Permission
       </button>
@@ -352,7 +358,7 @@
          </div>
         </div>
       </div> -->
-        <!-- <label class="inputLabel">Purpose of Visit<span class="astrik">*</span></label><br>    
+<!-- <label class="inputLabel">Purpose of Visit<span class="astrik">*</span></label><br>    
           <p-floatLabel>      
           <p-autoComplete class="largeInput"          
           [dropdown]="true"
@@ -368,7 +374,7 @@
         </p-autoComplete>
         <label for="autocomplete-input">Enter the name of the Purpose of Visit</label>
       </p-floatLabel> Placeholder added to trigger floating label -->
-  <!-- <div class="row mb-3">
+<!-- <div class="row mb-3">
       <div class="col">
         <label class="inputLabel">Purpose Of Visit<span class="astrik">*</span></label>
         <mat-form-field class="largeInput" appearance="outline">
@@ -390,7 +396,7 @@
         </div> 
       </div>
   </div>  -->
- <!-- <label class="inputLabel">Name<span class="astrik">*</span></label>
+<!-- <label class="inputLabel">Name<span class="astrik">*</span></label>
           <p-floatLabel>
             <input  class="form-control smallInput p-inputtext" formControlName="name" id="name"
              placeholder="" required/>
